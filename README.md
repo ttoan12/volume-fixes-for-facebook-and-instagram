@@ -16,7 +16,7 @@ If you afraid of those very loud videos from Facebook and Instagram, or sometime
 - Chromium: [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Violentmonkey](https://chrome.google.com/webstore/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag)
 
 #### Step 2: Install script:
-- [Install](https://raw.githubusercontent.com/ttoan12/volume-fixes-for-facebook-and-instagram/main/volume-fixes-for-facebook-and-instagram.js) *from github.com*
+- [Install](https://github.com/ttoan12/volume-fixes-for-facebook-and-instagram/raw/main/volume-fixes-for-facebook-and-instagram.user.js) *from github.com*
 
 ## Usage
 - Go to [Facebook](https://www.facebook.com) or [Instagram](https://www.instagram.com)
