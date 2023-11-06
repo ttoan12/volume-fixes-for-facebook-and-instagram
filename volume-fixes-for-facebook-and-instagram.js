@@ -5,10 +5,11 @@
 // @match       http*://*.instagram.com/*
 // @grant       GM_getValue
 // @grant       GM_setValue
-// @version     1.0
+// @version     0.0.1
 // @author      Toan Tran
 // @description Fix the loudness from those Facebook and Instagram, especially those reels which you can't change the volume level.
 // @license     MIT
+// @run-at      document-end
 // ==/UserScript==
 
 var volume = GM_getValue('volume', 0.5);
