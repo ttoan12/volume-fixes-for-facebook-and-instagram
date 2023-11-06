@@ -5,7 +5,7 @@
 // @match       http*://*.instagram.com/*
 // @grant       GM_getValue
 // @grant       GM_setValue
-// @version     0.0.1
+// @version     0.0.2
 // @author      Toan Tran
 // @description Fix the loudness from those Facebook and Instagram, especially those reels which you can't change the volume level.
 // @license     MIT
@@ -20,13 +20,6 @@ var isVolumeUpdating = false;
 
 function findUnRegisteredVideoElements() {
   return document.body.querySelectorAll('video:not([data-volumefix])');
-}
-
-function registerVolumeFix(element) {
-  element.addEventListener('playing', onPlaying);
-  element.addEventListener('volumechange', onVolumeChange);
-  element.setAttribute('data-volumefix', 'false');
-  registeredElements.push(element);
 }
 
 function setVolume(element) {
@@ -56,8 +49,10 @@ function debounce(func, timeout = 300){
 function onVolumeChange(event) {
   if (isVolumeUpdating || !event.target || !volChangeFn) return;
 
-  if (event.target.getAttribute('data-volumefix') === 'false') {
-    event.target.setAttribute('data-volumefix', 'true');
+  // This is to prevent the volume from changing to 100% when the video first plays
+  if (event.target.getAttribute('data-volumefix') === 'registered') {
+    event.stopPropagation();
+    event.target.setAttribute('data-volumefix', 'fixed');
     return;
   }
 
@@ -67,17 +62,42 @@ function onVolumeChange(event) {
 function onPlaying(event) {
   if (!event.target) return;
   event.stopPropagation();
-
-  event.target.volume = volume;
+  setVolume(event.target);
 }
 
-function activateVolumeFix() {
+function registerVolumeFix(element) {
+  element.addEventListener('playing', onPlaying);
+  element.addEventListener('volumechange', onVolumeChange);
+  element.setAttribute('data-volumefix', 'registered');
+  setVolume(element);
+  registeredElements.push(element);
+}
+
+var observeDOM = (function(){
+  var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
   volChangeFn = debounce(updateVolume);
-  interval = setInterval(() => {
-    findUnRegisteredVideoElements().forEach(registerVolumeFix);
-  }, 500);
+  findUnRegisteredVideoElements().forEach(registerVolumeFix);
+  console.log("Volume fix started.");
 
-  console.log('Volume fix activated.');
-}
+  return function( obj, callback ){
+    if( !obj || obj.nodeType !== 1 ) return;
 
-activateVolumeFix();
+    if( MutationObserver ){
+      // define a new observer
+      var mutationObserver = new MutationObserver(callback)
+
+      // have the observer observe for changes in children
+      mutationObserver.observe( obj, { childList:true, subtree:true })
+      return mutationObserver
+    }
+
+    // browser support fallback
+    else if( window.addEventListener ){
+      obj.addEventListener('DOMNodeInserted', callback, false)
+      obj.addEventListener('DOMNodeRemoved', callback, false)
+    }
+  }
+})()
+
+observeDOM(document.body, () => findUnRegisteredVideoElements().forEach(registerVolumeFix));
